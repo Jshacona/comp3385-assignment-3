@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Client;
@@ -20,7 +22,7 @@ class ClientController extends Controller
             'email' => 'required|email|unique:clients,email', // Email should be unique
             'telephone' => 'required|string', // Telephone field is required and should be a string
             'address' => 'required|string', // Address field is required and should be a string
-            'company_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // File upload validation
+            'company_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // File upload validation (image types)
         ]);
 
         // Handle the file upload
@@ -30,4 +32,21 @@ class ClientController extends Controller
             $file = $request->file('company_logo');
 
             // Store the file in the 'company_logos' folder within the 'public' disk
+            $filePath = $file->store('company_logos', 'public'); // 'public' disk stores the file under storage/app/public
+        }
+
+        // Create a new client and store it in the database
+        Client::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'telephone' => $request->input('telephone'),
+            'address' => $request->input('address'),
+            'company_logo' => $filePath, // Store the file path in the database
+        ]);
+
+        // Redirect back with a success message
+        return redirect()->route('clients.add')->with('success', 'Client added successfully!');
+    }
+}
+
             
